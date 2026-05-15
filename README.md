@@ -1,0 +1,63 @@
+# Zimnat Policy Management System
+
+A simple digital system to manage insurance policies and improve communication with clients.
+
+## Features
+- **Web Application (Staff):** Admin & Policy Officers can manage policies, upload documents, and respond to client queries.
+- **Mobile Application (Clients):** Clients can view their policies, track renewal dates, view documents, and raise queries.
+
+## Technologies
+- **Backend:** Laravel 11 (PHP 8.5)
+- **Database:** MySQL / SQLite
+- **Mobile:** Flutter 3.41
+- **API:** Laravel Sanctum
+
+## Setup Instructions
+
+### Backend (Laravel)
+1. Navigate to the `backend` directory.
+2. Install dependencies:
+   ```bash
+   composer install
+   npm install
+   ```
+3. Configure your `.env` file (copy from `.env.example`).
+   - For MySQL, update `DB_*` variables.
+   - For SQLite (default), ensure `database/database.sqlite` exists.
+4. Generate application key:
+   ```bash
+   php artisan key:generate
+   ```
+5. Run migrations and seed the database:
+   ```bash
+   php artisan migrate --seed
+   ```
+6. Start the development server:
+   ```bash
+   php artisan serve
+   ```
+
+### Mobile App (Flutter)
+1. Navigate to the `mobile` directory.
+2. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
+3. Update the API base URL in `lib/api_service.dart`:
+   - Use `10.0.2.2` for Android Emulator.
+   - Use `localhost` for iOS Simulator.
+4. Run the application:
+   ```bash
+   flutter run
+   ```
+
+## Test Credentials
+- **Admin:** `admin@zimnat.co.zw` / `password`
+- **Policy Officer:** `officer@zimnat.co.zw` / `password`
+- **Client:** `client@example.com` / `password`
+
+## Assumptions Made
+1. The system assumes a stable internet connection for mobile-to-backend communication.
+2. File uploads are stored locally in the `storage/app/public` directory.
+3. Policy numbers are unique across the system.
+4. Clients are pre-registered by staff members (or through the seeder).

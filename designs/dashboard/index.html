@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zimnat Policy System — Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zimnat: {
+                            blue: '#004a99',
+                            'blue-dark': '#002d6b',
+                            'blue-light': '#1a6abf',
+                            green: '#7fb13b',
+                            'green-dark': '#5f8a27',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'ui-sans-serif', 'system-ui']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-texture {
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255,255,255,0.03) 0px,
+                rgba(255,255,255,0.03) 1px,
+                transparent 1px,
+                transparent 8px
+            );
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12), 0 4px 6px -2px rgba(0,0,0,0.07);
+        }
+        .stat-card {
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+        .nav-item {
+            transition: background-color 200ms ease;
+        }
+        .progress-bar-fill {
+            transition: width 1s ease;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.4); }
+        }
+        .pulse-dot {
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes count-up {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .count-animate {
+            animation: count-up 0.6s ease forwards;
+        }
+        .table-row:hover {
+            background-color: #f8fafc;
+        }
+        .table-row {
+            transition: background-color 150ms ease;
+        }
+        .quick-action-btn {
+            transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+        }
+        .quick-action-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+            box-shadow: 0 6px 16px -4px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased" style="background:#f1f5f9;">
+
+<div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, notifOpen: false, avatarOpen: false }">
+
+    <!-- Sidebar overlay (mobile) -->
+    <div
+        x-show="sidebarOpen"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-20 bg-black/50 lg:hidden"
+        style="display:none;"
+        x-transition:enter="transition-opacity ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+    ></div>
+
+    <!-- Sidebar -->
+    <aside
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+        class="fixed inset-y-0 left-0 z-30 w-64 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-0"
+        style="background: linear-gradient(160deg, #002d6b 0%, #004a99 100%);"
+        aria-label="Sidebar navigation"
+    >
+        <!-- Texture overlay -->
+        <div class="absolute inset-0 sidebar-texture pointer-events-none"></div>
+
+        <!-- Logo -->
+        <div class="relative flex flex-col items-start px-6 pt-8 pb-6 border-b border-white/10">
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(127,177,59,0.2); border: 1.5px solid #7fb13b;">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L3 7V17L12 22L21 17V7L12 2Z" fill="#7fb13b" opacity="0.9"/>
+                        <path d="M12 6L7 9V15L12 18L17 15V9L12 6Z" fill="white" opacity="0.9"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-white font-bold text-xl leading-none tracking-wide">Zimnat</span>
+                    <span class="block text-xs font-semibold mt-0.5" style="color: #7fb13b;">Policy System</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- User block -->
+        <div class="relative px-5 py-4 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0" style="background: rgba(255,255,255,0.15); border: 2px solid rgba(127,177,59,0.6); color: #fff;">
+                    AU
+                </div>
+                <div class="min-w-0">
+                    <p class="text-white font-semibold text-sm leading-tight truncate">Admin User</p>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold mt-1" style="background: rgba(127,177,59,0.2); color: #7fb13b; border: 1px solid rgba(127,177,59,0.4);">
+                        Admin
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nav -->
+        <nav class="relative flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+            <!-- Dashboard (active) -->
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg relative" style="background: rgba(255,255,255,0.1); border-left: 4px solid #7fb13b; color: white;">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span class="font-semibold text-sm">Dashboard</span>
+            </a>
+
+            <!-- Policies -->
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg border-l-4 border-transparent" style="color: rgba(255,255,255,0.75);" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='rgba(255,255,255,0.75)';">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span class="font-medium text-sm">Policies</span>
+            </a>
+
+            <!-- Queries -->
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg border-l-4 border-transparent" style="color: rgba(255,255,255,0.75);" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='rgba(255,255,255,0.75)';">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                <span class="font-medium text-sm">Queries</span>
+            </a>
+
+            <!-- User Management (admin only) -->
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg border-l-4 border-transparent" style="color: rgba(255,255,255,0.75);" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='rgba(255,255,255,0.75)';">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span class="font-medium text-sm">User Management</span>
+            </a>
+        </nav>
+
+        <!-- Logout -->
+        <div class="relative px-4 pb-5">
+            <button class="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg transition-colors duration-200" style="color: #fca5a5;" onmouseover="this.style.background='rgba(239,68,68,0.12)'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#fca5a5';">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span class="font-medium text-sm">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main content wrapper -->
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        <!-- Header -->
+        <header class="flex items-center justify-between px-5 py-3.5 bg-white border-b-2 z-10 flex-shrink-0" style="border-color: #7fb13b;">
+            <!-- Left: hamburger (mobile) -->
+            <div class="flex items-center">
+                <button @click="sidebarOpen = true" class="text-gray-500 focus:outline-none focus:ring-2 focus:ring-zimnat-blue rounded lg:hidden" aria-label="Open sidebar">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+
+            <!-- Center: page title -->
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold italic" style="color: #004a99;">Dashboard</h1>
+            </div>
+
+            <!-- Right: notification bell + avatar -->
+            <div class="flex items-center gap-3">
+                <!-- Notification bell -->
+                <div class="relative">
+                    <button @click="notifOpen = !notifOpen" class="relative p-1.5 rounded-full text-gray-500 hover:text-zimnat-blue hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-zimnat-blue transition-colors duration-200" aria-label="Notifications">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white text-xs font-bold" style="background: #ef4444; font-size: 9px;">3</span>
+                    </button>
+                </div>
+
+                <!-- Avatar dropdown -->
+                <div x-data="{ avatarOpen: false }" class="relative">
+                    <button @click="avatarOpen = !avatarOpen" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-zimnat-blue rounded-full" aria-label="User menu">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-white" style="background: linear-gradient(135deg, #004a99, #1a6abf);">
+                            A
+                        </div>
+                        <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="avatarOpen" @click.away="avatarOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl z-50 overflow-hidden border border-gray-100" style="display:none;" x-transition>
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <p class="text-sm font-semibold text-gray-900">Admin User</p>
+                            <p class="text-xs text-gray-500">admin@zimnat.co.zw</p>
+                        </div>
+                        <a href="#" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            Profile
+                        </a>
+                        <a href="#" class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Sign out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto" style="background: #f1f5f9;">
+            <div class="max-w-7xl mx-auto px-6 py-7">
+
+                <!-- Stat Strip -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-7"
+                     x-data="{
+                        stats: [
+                            { label: 'Total Policies', value: 247, trend: '+12%', trendUp: true },
+                            { label: 'Active Policies', value: 198, trend: '+5%', trendUp: true },
+                            { label: 'Expired Policies', value: 34, trend: '+2', trendUp: false },
+                            { label: 'Pending Queries', value: 12, trend: 'Urgent', trendUp: false },
+                            { label: 'Resolved Queries', value: 3, trend: 'Today', trendUp: true },
+                        ],
+                        displayed: [0,0,0,0,0]
+                     }"
+                     x-init="
+                        setTimeout(() => {
+                            stats.forEach((s, i) => {
+                                let start = 0, end = s.value, duration = 900, step = 16;
+                                let inc = end / (duration / step);
+                                let interval = setInterval(() => {
+                                    start = Math.min(start + inc, end);
+                                    displayed[i] = Math.floor(start);
+                                    if (start >= end) clearInterval(interval);
+                                }, step);
+                            });
+                        }, 300);
+                     "
+                >
+                    <!-- Total Policies -->
+                    <div class="stat-card bg-white rounded-2xl shadow-sm overflow-hidden flex items-stretch">
+                        <div class="w-16 flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #1a6abf, #004a99);">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <div class="flex-1 px-4 py-4 min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Total Policies</p>
+                            <p class="text-3xl font-bold mt-1 count-animate" style="color: #1e293b;" x-text="displayed[0]">247</p>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 px-1.5 py-0.5 rounded-full" style="background: #eff6ff; color: #004a99;">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +12%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Active Policies -->
+                    <div class="stat-card bg-white rounded-2xl shadow-sm overflow-hidden flex items-stretch">
+                        <div class="w-16 flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #7fb13b, #5f8a27);">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex-1 px-4 py-4 min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Active Policies</p>
+                            <p class="text-3xl font-bold mt-1 count-animate" style="color: #1e293b;" x-text="displayed[1]">198</p>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 px-1.5 py-0.5 rounded-full" style="background: #f0fdf4; color: #5f8a27;">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +5%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Expired Policies -->
+                    <div class="stat-card bg-white rounded-2xl shadow-sm overflow-hidden flex items-stretch">
+                        <div class="w-16 flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #f87171, #dc2626);">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex-1 px-4 py-4 min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Expired Policies</p>
+                            <p class="text-3xl font-bold mt-1 count-animate" style="color: #1e293b;" x-text="displayed[2]">34</p>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 px-1.5 py-0.5 rounded-full" style="background: #fef2f2; color: #dc2626;">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                                +2
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Pending Queries -->
+                    <div class="stat-card bg-white rounded-2xl shadow-sm overflow-hidden flex items-stretch">
+                        <div class="w-16 flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #fbbf24, #d97706);">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex-1 px-4 py-4 min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Pending Queries</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <p class="text-3xl font-bold count-animate" style="color: #1e293b;" x-text="displayed[3]">12</p>
+                                <span class="pulse-dot w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #7fb13b;"></span>
+                            </div>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 px-1.5 py-0.5 rounded-full" style="background: #fffbeb; color: #d97706;">
+                                Urgent
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Resolved Queries -->
+                    <div class="stat-card bg-white rounded-2xl shadow-sm overflow-hidden flex items-stretch">
+                        <div class="w-16 flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #818cf8, #4f46e5);">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div class="flex-1 px-4 py-4 min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Resolved Queries</p>
+                            <p class="text-3xl font-bold mt-1 count-animate" style="color: #1e293b;" x-text="displayed[4]">3</p>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 px-1.5 py-0.5 rounded-full" style="background: #eef2ff; color: #4f46e5;">
+                                Today
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main two-column area -->
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+                    <!-- Left column: Recent Policies table (60%) -->
+                    <div class="lg:col-span-3">
+                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold text-base" style="color: #1e293b;">Recent Policies</h2>
+                                <a href="#" class="text-xs font-semibold flex items-center gap-1 transition-colors duration-150" style="color: #004a99;" onmouseover="this.style.color='#7fb13b';" onmouseout="this.style.color='#004a99';">
+                                    View All
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm" role="table">
+                                    <thead>
+                                        <tr style="background: #f8fafc;">
+                                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Policy #</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Client</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hidden md:table-cell" style="color: #64748b;">Type</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider hidden lg:table-cell" style="color: #64748b;">Renewal</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        <tr class="table-row">
+                                            <td class="px-6 py-3.5">
+                                                <span class="font-mono text-xs font-semibold" style="color: #004a99;">ZIM-001-2024</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="font-medium text-sm" style="color: #1e293b;">Tafara Moyo</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden md:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">Life Insurance</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden lg:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">2025-03-15</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" role="status" style="background: #dcfce7; color: #166534;">Active</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <a href="#" class="text-xs font-semibold transition-colors duration-150" style="color: #004a99;" onmouseover="this.style.color='#7fb13b';" onmouseout="this.style.color='#004a99';">View</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-6 py-3.5">
+                                                <span class="font-mono text-xs font-semibold" style="color: #004a99;">ZIM-002-2024</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="font-medium text-sm" style="color: #1e293b;">Chido Sithole</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden md:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">Motor Vehicle</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden lg:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">2024-11-30</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" role="status" style="background: #fee2e2; color: #991b1b;">Expired</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <a href="#" class="text-xs font-semibold transition-colors duration-150" style="color: #004a99;" onmouseover="this.style.color='#7fb13b';" onmouseout="this.style.color='#004a99';">View</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-6 py-3.5">
+                                                <span class="font-mono text-xs font-semibold" style="color: #004a99;">ZIM-003-2024</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="font-medium text-sm" style="color: #1e293b;">Farai Mutasa</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden md:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">Home Insurance</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden lg:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">2025-07-22</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" role="status" style="background: #dcfce7; color: #166534;">Active</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <a href="#" class="text-xs font-semibold transition-colors duration-150" style="color: #004a99;" onmouseover="this.style.color='#7fb13b';" onmouseout="this.style.color='#004a99';">View</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-6 py-3.5">
+                                                <span class="font-mono text-xs font-semibold" style="color: #004a99;">ZIM-004-2024</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="font-medium text-sm" style="color: #1e293b;">Rudo Chimene</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden md:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">Life Insurance</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden lg:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">2025-01-10</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" role="status" style="background: #fef3c7; color: #92400e;">Pending</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <a href="#" class="text-xs font-semibold transition-colors duration-150" style="color: #004a99;" onmouseover="this.style.color='#7fb13b';" onmouseout="this.style.color='#004a99';">View</a>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-6 py-3.5">
+                                                <span class="font-mono text-xs font-semibold" style="color: #004a99;">ZIM-005-2024</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="font-medium text-sm" style="color: #1e293b;">Takudzwa Banda</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden md:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">Motor Vehicle</span>
+                                            </td>
+                                            <td class="px-4 py-3.5 hidden lg:table-cell">
+                                                <span class="text-xs" style="color: #64748b;">2025-09-18</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" role="status" style="background: #dcfce7; color: #166534;">Active</span>
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <a href="#" class="text-xs font-semibold transition-colors duration-150" style="color: #004a99;" onmouseover="this.style.color='#7fb13b';" onmouseout="this.style.color='#004a99';">View</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right column (40%) -->
+                    <div class="lg:col-span-2 flex flex-col gap-6">
+
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold text-base" style="color: #1e293b;">Quick Actions</h2>
+                            </div>
+                            <div class="px-5 py-5 space-y-3">
+                                <a href="#" class="quick-action-btn flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl font-semibold text-sm text-white focus:outline-none focus:ring-2 focus:ring-zimnat-blue focus:ring-offset-2" style="background: linear-gradient(135deg, #1a6abf, #004a99);">
+                                    <svg class="w-4.5 h-4.5 flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    New Policy
+                                </a>
+                                <a href="#" class="quick-action-btn flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl font-semibold text-sm text-white focus:outline-none focus:ring-2 focus:ring-zimnat-green focus:ring-offset-2" style="background: linear-gradient(135deg, #7fb13b, #5f8a27);">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                                    View Queries
+                                </a>
+                                <a href="#" class="quick-action-btn flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 border-2" style="color: #1e293b; border-color: #cbd5e1; background: transparent;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                    Manage Users
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Activity Summary -->
+                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden"
+                             x-data="{
+                                active: 198, expired: 34, pending: 12,
+                                get total() { return this.active + this.expired + this.pending; },
+                                get activePct() { return Math.round((this.active / this.total) * 100); },
+                                get expiredPct() { return Math.round((this.expired / this.total) * 100); },
+                                get pendingPct() { return Math.round((this.pending / this.total) * 100); },
+                                barReady: false
+                             }"
+                             x-init="setTimeout(() => { barReady = true; }, 500);"
+                        >
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold text-base" style="color: #1e293b;">Activity Summary</h2>
+                            </div>
+                            <div class="px-6 py-5">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-medium" style="color: #64748b;">Policy Distribution</span>
+                                    <span class="text-xs font-semibold" style="color: #64748b;" x-text="total + ' total'">244 total</span>
+                                </div>
+                                <!-- Stacked bar -->
+                                <div class="flex h-4 rounded-full overflow-hidden gap-0.5 bg-gray-100">
+                                    <div class="progress-bar-fill rounded-l-full" :style="{ width: barReady ? activePct + '%' : '0%' }" style="background: linear-gradient(90deg, #7fb13b, #5f8a27);"></div>
+                                    <div class="progress-bar-fill" :style="{ width: barReady ? expiredPct + '%' : '0%' }" style="background: linear-gradient(90deg, #f87171, #dc2626);"></div>
+                                    <div class="progress-bar-fill rounded-r-full" :style="{ width: barReady ? pendingPct + '%' : '0%' }" style="background: linear-gradient(90deg, #fbbf24, #d97706);"></div>
+                                </div>
+                                <!-- Legend -->
+                                <div class="mt-4 space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-3 h-3 rounded-sm flex-shrink-0" style="background: #7fb13b;"></span>
+                                            <span class="text-xs font-medium" style="color: #64748b;">Active</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold" style="color: #1e293b;" x-text="active">198</span>
+                                            <span class="text-xs px-1.5 py-0.5 rounded font-semibold" style="background: #f0fdf4; color: #5f8a27;" x-text="activePct + '%'">82%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-3 h-3 rounded-sm flex-shrink-0" style="background: #dc2626;"></span>
+                                            <span class="text-xs font-medium" style="color: #64748b;">Expired</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold" style="color: #1e293b;" x-text="expired">34</span>
+                                            <span class="text-xs px-1.5 py-0.5 rounded font-semibold" style="background: #fef2f2; color: #dc2626;" x-text="expiredPct + '%'">14%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-3 h-3 rounded-sm flex-shrink-0" style="background: #d97706;"></span>
+                                            <span class="text-xs font-medium" style="color: #64748b;">Pending</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold" style="color: #1e293b;" x-text="pending">12</span>
+                                            <span class="text-xs px-1.5 py-0.5 rounded font-semibold" style="background: #fffbeb; color: #d97706;" x-text="pendingPct + '%'">5%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+</body>
+</html>
