@@ -34,7 +34,7 @@
             }
         </script>
     </head>
-    <body class="font-sans text-gray-900 antialiased" style="background: #ffffff; background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px); background-size: 24px 24px;">
+    <body class="font-sans text-gray-900 antialiased" style="background: #ffffff;">
         <div class="min-h-screen flex flex-col sm:justify-center items-center p-6">
             <div class="w-full sm:max-w-md">
                 <div class="bg-white px-10 py-12 shadow-[0_32px_64px_-12px_rgba(0,74,153,0.1)] border border-gray-100 sm:rounded-[32px] relative overflow-hidden">
