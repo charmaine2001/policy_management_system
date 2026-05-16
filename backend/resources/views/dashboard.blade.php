@@ -24,16 +24,16 @@
          "
     >
         <!-- Total Policies -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-zimnat-blue/5 transition-all group">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:shadow-zimnat-blue/5 transition-all group">
             <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-zimnat-blue group-hover:scale-110 transition-transform">
+                <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-zimnat-blue group-hover:scale-110 transition-transform">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
-                <span class="text-[10px] font-black text-zimnat-blue bg-blue-50 px-2 py-1 rounded-md">SUMMARY</span>
+                <span class="text-[10px] font-black text-zimnat-blue bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md">SUMMARY</span>
             </div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Policies</p>
+            <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Total Policies</p>
             <div class="flex items-baseline gap-2">
-                <p class="text-3xl font-black text-gray-900" x-text="displayed[0]">{{ $stats['total_policies'] }}</p>
+                <p class="text-3xl font-black text-gray-900 dark:text-white" x-text="displayed[0]">{{ $stats['total_policies'] }}</p>
                 <span class="text-[10px] font-black text-blue-500 tracking-tighter">↑ 12%</span>
             </div>
         </div>
