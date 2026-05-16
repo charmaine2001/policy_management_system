@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [ApiController::class, 'login']);
+Route::post('/register', [ApiController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -12,6 +13,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get('/policies', [ApiController::class, 'policies']);
+    Route::post('/policies', [ApiController::class, 'addPolicy']);
+    Route::get('/policy-types', [ApiController::class, 'getPolicyTypes']);
     Route::get('/policies/{policy}', [ApiController::class, 'policyDetails']);
     Route::post('/queries', [ApiController::class, 'raiseQuery']);
     Route::get('/queries', [ApiController::class, 'queries']);

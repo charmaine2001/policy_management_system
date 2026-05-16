@@ -21,11 +21,15 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Insurance Type</p>
-                                <p class="font-medium">{{ $policy->insurance_type }}</p>
+                                <p class="font-medium">{{ $policy->type->name ?? 'N/A' }}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">Premium Amount</p>
-                                <p class="font-medium">${{ number_format($policy->premium_amount, 2) }}</p>
+                                <p class="text-sm text-gray-500">Plan Type</p>
+                                <p class="font-medium text-zimnat-blue">{{ $policy->plan_type }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Final Price</p>
+                                <p class="font-medium font-black">${{ number_format($policy->final_price, 2) }}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Status</p>

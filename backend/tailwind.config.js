@@ -11,6 +11,10 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                'zimnat-blue': '#004a99',
+                'zimnat-green': '#7fb13b',
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },

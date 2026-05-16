@@ -24,6 +24,8 @@ class Policy {
   final String startDate;
   final String renewalDate;
   final String status;
+  final String? planType;
+  final int? policyTypeId;
   final List<Document>? documents;
 
   Policy({
@@ -34,6 +36,8 @@ class Policy {
     required this.startDate,
     required this.renewalDate,
     required this.status,
+    this.planType,
+    this.policyTypeId,
     this.documents,
   });
 
@@ -41,14 +45,39 @@ class Policy {
     return Policy(
       id: json['id'],
       policyNumber: json['policy_number'],
-      insuranceType: json['insurance_type'],
-      premiumAmount: double.parse(json['premium_amount'].toString()),
+      insuranceType: json['insurance_type'] ?? '',
+      premiumAmount: double.parse((json['premium_amount'] ?? json['final_price'] ?? 0).toString()),
       startDate: json['start_date'],
       renewalDate: json['renewal_date'],
       status: json['status'],
+      planType: json['plan_type'],
+      policyTypeId: json['policy_type_id'],
       documents: json['documents'] != null 
         ? (json['documents'] as List).map((i) => Document.fromJson(i)).toList()
         : null,
+    );
+  }
+}
+
+class PolicyType {
+  final int id;
+  final String name;
+  final double standardPrice;
+  final double premiumPrice;
+
+  PolicyType({
+    required this.id, 
+    required this.name, 
+    required this.standardPrice,
+    required this.premiumPrice,
+  });
+
+  factory PolicyType.fromJson(Map<String, dynamic> json) {
+    return PolicyType(
+      id: json['id'],
+      name: json['name'],
+      standardPrice: double.parse((json['standard_price'] ?? 0).toString()),
+      premiumPrice: double.parse((json['premium_price'] ?? 0).toString()),
     );
   }
 }

@@ -28,7 +28,8 @@
                         <tr class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50">
                             <th class="px-8 py-5">Policy #</th>
                             <th class="px-6 py-5">Client Name</th>
-                            <th class="px-6 py-5">Type</th>
+                            <th class="px-6 py-5">Type / Plan</th>
+                            <th class="px-6 py-5">Final Price</th>
                             <th class="px-6 py-5">Renewal</th>
                             <th class="px-6 py-5">Status</th>
                             <th class="px-8 py-5 text-right">Actions</th>
@@ -43,7 +44,11 @@
                             <td class="px-6 py-4">
                                 <div class="text-sm font-bold text-gray-900">{{ $policy->client->name }}</div>
                             </td>
-                            <td class="px-6 py-4 text-sm font-bold text-gray-500 uppercase">{{ $policy->insurance_type }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-500 uppercase">
+                                {{ $policy->type->name ?? 'N/A' }}
+                                <span class="block text-[10px] text-gray-400 font-black tracking-widest">{{ $policy->plan_type }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-500 uppercase">${{ number_format($policy->final_price, 2) }}</td>
                             <td class="px-6 py-4 text-sm font-bold text-gray-500">{{ $policy->renewal_date }}</td>
                             <td class="px-6 py-4">
                                 @php

@@ -4,6 +4,7 @@ import 'models.dart';
 import 'policy_details_page.dart';
 import 'query_page.dart';
 import 'login_page.dart';
+import 'add_policy_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   final ApiService _apiService = ApiService();
   int _selectedIndex = 0;
   String? _userName;
+  int _refreshCount = 0;
 
   @override
   void initState() {
@@ -184,6 +186,23 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              backgroundColor: const Color(0xFF7fb13b),
+              child: const Icon(Icons.add, color: Colors.white),
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddPolicyPage()),
+                );
+                if (result == true) {
+                  setState(() {
+                    _refreshCount++;
+                  });
+                }
+              },
+            )
+          : null,
     );
   }
 
@@ -215,11 +234,11 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return _PoliciesList(apiService: _apiService, mode: 'all');
+        return _PoliciesList(key: ValueKey('policies_$_refreshCount'), apiService: _apiService, mode: 'all');
       case 1:
-        return _PoliciesList(apiService: _apiService, mode: 'renewals');
+        return _PoliciesList(key: ValueKey('renewals_$_refreshCount'), apiService: _apiService, mode: 'renewals');
       case 2:
-        return _PoliciesList(apiService: _apiService, mode: 'documents');
+        return _PoliciesList(key: ValueKey('documents_$_refreshCount'), apiService: _apiService, mode: 'documents');
       case 3:
         return const QueryPage();
       default:
@@ -231,7 +250,7 @@ class _HomePageState extends State<HomePage> {
 class _PoliciesList extends StatefulWidget {
   final ApiService apiService;
   final String mode;
-  const _PoliciesList({required this.apiService, required this.mode});
+  const _PoliciesList({super.key, required this.apiService, required this.mode});
 
   @override
   State<_PoliciesList> createState() => _PoliciesListState();
@@ -287,7 +306,7 @@ class _PoliciesListState extends State<_PoliciesList> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${policy.insuranceType}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('${policy.insuranceType}${policy.planType != null ? " (${policy.planType})" : ""}', style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     if (widget.mode == 'renewals')
                       Text('Renewal: ${policy.renewalDate}', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))

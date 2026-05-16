@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('policies', function (Blueprint $table) {
             $table->id();
             $table->string('policy_number')->unique();
-            $table->foreignId('client_id')->constrained('users')->onDelete('cascade');
-            $table->string('insurance_type');
-            $table->decimal('premium_amount', 10, 2);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('policy_type_id')->constrained('policy_types')->onDelete('cascade');
+            $table->enum('plan_type', ['Standard', 'Premium']);
+            $table->decimal('final_price', 10, 2);
             $table->date('start_date');
             $table->date('renewal_date');
             $table->enum('status', ['Active', 'Expired', 'Pending Renewal'])->default('Active');

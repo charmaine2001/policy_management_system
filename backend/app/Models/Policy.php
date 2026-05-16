@@ -11,17 +11,28 @@ class Policy extends Model
 
     protected $fillable = [
         'policy_number',
-        'client_id',
-        'insurance_type',
-        'premium_amount',
+        'user_id',
+        'policy_type_id',
+        'plan_type',
+        'final_price',
         'start_date',
         'renewal_date',
         'status',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function client()
     {
-        return $this->belongsTo(User::class, 'client_id');
+        return $this->user();
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(PolicyType::class, 'policy_type_id');
     }
 
     public function documents()

@@ -127,6 +127,7 @@ class _PolicyDetailsPageState extends State<PolicyDetailsPage> {
             _buildRow('Policy Number', policy.policyNumber, isTitle: true),
             const Divider(),
             _buildRow('Insurance Type', policy.insuranceType),
+            if (policy.planType != null) _buildRow('Plan Type', policy.planType!),
             _buildRow('Premium Amount', '\$${policy.premiumAmount.toStringAsFixed(2)}'),
             _buildRow('Start Date', policy.startDate),
             _buildRow('Renewal Date', policy.renewalDate, isBold: true, valueColor: Colors.orange),

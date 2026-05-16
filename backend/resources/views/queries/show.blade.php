@@ -27,7 +27,7 @@
                     
                     <div class="mb-4">
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
-                        <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zimnat-blue focus:ring-zimnat-blue">
                             <option value="Open" {{ $query->status == 'Open' ? 'selected' : '' }}>Open</option>
                             <option value="In Progress" {{ $query->status == 'In Progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="Resolved" {{ $query->status == 'Resolved' ? 'selected' : '' }}>Resolved</option>
@@ -36,7 +36,7 @@
 
                     <div class="mb-4">
                         <label for="response" class="block text-sm font-medium text-gray-700 mb-2">Response</label>
-                        <textarea name="response" id="response" rows="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Type your response here...">{{ $query->response }}</textarea>
+                        <textarea name="response" id="response" rows="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-zimnat-blue focus:ring-zimnat-blue" required placeholder="Type your response here...">{{ $query->response }}</textarea>
                     </div>
 
                     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

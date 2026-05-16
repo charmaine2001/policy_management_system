@@ -125,14 +125,14 @@
                                 <td class="px-8 py-5">
                                     <span class="text-xs font-black text-zimnat-blue tracking-tight">{{ $policy->policy_number }}</span>
                                 </td>
-                                <td class="px-4 py-5 text-xs font-bold text-gray-700">{{ $policy->client_name }}</td>
-                                <td class="px-4 py-5 text-[11px] font-bold text-gray-400 uppercase tracking-tight">{{ $policy->policy_type }}</td>
+                                <td class="px-4 py-5 text-xs font-bold text-gray-700">{{ $policy->client->name ?? 'N/A' }}</td>
+                                <td class="px-4 py-5 text-[11px] font-bold text-gray-400 uppercase tracking-tight">{{ $policy->insurance_type }}</td>
                                 <td class="px-4 py-5 text-xs font-bold text-gray-500">
                                     {{ $policy->renewal_date ? \Carbon\Carbon::parse($policy->renewal_date)->format('M d, Y') : '—' }}
                                 </td>
                                 <td class="px-4 py-5">
                                     @php
-                                        $statusClass = match($policy->status) {
+                                        $statusClass = match(strtolower($policy->status)) {
                                             'active' => 'bg-green-50 text-zimnat-green border-green-100',
                                             'expired' => 'bg-red-50 text-red-600 border-red-100',
                                             'pending' => 'bg-orange-50 text-orange-600 border-orange-100',

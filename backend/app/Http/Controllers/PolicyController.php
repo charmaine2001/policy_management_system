@@ -4,29 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Policy;
 use App\Models\User;
+use App\Models\PolicyType;
 use Illuminate\Http\Request;
 
 class PolicyController extends Controller
 {
     public function index()
     {
-        $policies = Policy::with('client')->latest()->paginate(10);
+        $policies = Policy::with(['client', 'type'])->latest()->paginate(10);
         return view('policies.index', compact('policies'));
     }
 
     public function create()
     {
         $clients = User::where('role', 'client')->get();
-        return view('policies.create', compact('clients'));
+        $policyTypes = PolicyType::all();
+        return view('policies.create', compact('clients', 'policyTypes'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'policy_number' => 'required|unique:policies',
-            'client_id' => 'required|exists:users,id',
-            'insurance_type' => 'required',
-            'premium_amount' => 'required|numeric',
+            'user_id' => 'required|exists:users,id',
+            'policy_type_id' => 'required|exists:policy_types,id',
+            'plan_type' => 'required|in:Standard,Premium',
+            'final_price' => 'required|numeric',
             'start_date' => 'required|date',
             'renewal_date' => 'required|date|after:start_date',
             'status' => 'required|in:Active,Expired,Pending Renewal',
@@ -39,23 +42,25 @@ class PolicyController extends Controller
 
     public function show(Policy $policy)
     {
-        $policy->load('client', 'documents');
+        $policy->load('client', 'type', 'documents');
         return view('policies.show', compact('policy'));
     }
 
     public function edit(Policy $policy)
     {
         $clients = User::where('role', 'client')->get();
-        return view('policies.edit', compact('policy', 'clients'));
+        $policyTypes = PolicyType::all();
+        return view('policies.edit', compact('policy', 'clients', 'policyTypes'));
     }
 
     public function update(Request $request, Policy $policy)
     {
         $request->validate([
             'policy_number' => 'required|unique:policies,policy_number,' . $policy->id,
-            'client_id' => 'required|exists:users,id',
-            'insurance_type' => 'required',
-            'premium_amount' => 'required|numeric',
+            'user_id' => 'required|exists:users,id',
+            'policy_type_id' => 'required|exists:policy_types,id',
+            'plan_type' => 'required|in:Standard,Premium',
+            'final_price' => 'required|numeric',
             'start_date' => 'required|date',
             'renewal_date' => 'required|date|after:start_date',
             'status' => 'required|in:Active,Expired,Pending Renewal',

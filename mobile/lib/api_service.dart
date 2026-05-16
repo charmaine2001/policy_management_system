@@ -4,14 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 
 import 'package:flutter/foundation.dart';
-import 'dart:io';
 
 class ApiService {
   // Use 192.168.100.224 for physical iPhone on the same Wi-Fi
   // Use localhost for macOS desktop app or iOS simulator
   static String get siteUrl {
-    // Use the Mac's local IP address so both macOS and iPhone can connect
-    return 'http://192.168.100.224:8001';
+    // Use localhost for macOS desktop app or iOS simulator
+    return 'http://localhost:8000';
   }
 
   static String get baseUrl => '$siteUrl/api';
@@ -42,8 +41,8 @@ class ApiService {
         }),
       );
 
-      print('Login Status Code: ${response.statusCode}');
-      print('Login Response Body: ${response.body}');
+      debugPrint('Login Status Code: ${response.statusCode}');
+      debugPrint('Login Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -54,8 +53,52 @@ class ApiService {
       }
       return false;
     } catch (e) {
-      print('Login Error: $e');
+      debugPrint('Login Error: $e');
       return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> register(String name, String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register'),
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'password': password,
+          'device_name': 'mobile_app',
+        }),
+      );
+
+      debugPrint('Register Status Code: ${response.statusCode}');
+      debugPrint('Register Response Body: ${response.body}');
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', data['token']);
+        await prefs.setString('user_name', data['user']['name']);
+        return {'success': true};
+      } else {
+        String message = data['message'] ?? 'Registration failed';
+        if (data['errors'] != null && data['errors'] is Map) {
+          final errors = data['errors'] as Map;
+          if (errors.isNotEmpty) {
+            final firstError = errors.values.first;
+            if (firstError is List && firstError.isNotEmpty) {
+              message = firstError.first.toString();
+            } else {
+              message = firstError.toString();
+            }
+          }
+        }
+        return {'success': false, 'message': message};
+      }
+    } catch (e) {
+      debugPrint('Register Error: $e');
+      return {'success': false, 'message': 'An error occurred during registration'};
     }
   }
 
@@ -89,6 +132,34 @@ class ApiService {
     } else {
       throw Exception('Failed to load policy details: ${response.statusCode}');
     }
+  }
+
+  Future<List<PolicyType>> getPolicyTypes() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/policy-types'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      List jsonResponse = jsonDecode(response.body);
+      return jsonResponse.map((pt) => PolicyType.fromJson(pt)).toList();
+    } else {
+      throw Exception('Failed to load policy types: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> addPolicy(int policyTypeId, String planType, String startDate) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/policies'),
+      headers: await _getHeaders(),
+      body: jsonEncode({
+        'policy_type_id': policyTypeId,
+        'plan_type': planType,
+        'start_date': startDate,
+      }),
+    );
+
+    return response.statusCode == 201;
   }
 
   Future<List<QueryIssue>> getQueries() async {

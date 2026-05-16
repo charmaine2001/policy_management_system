@@ -33,7 +33,7 @@ class User extends Authenticatable
 
     public function policies()
     {
-        return $this->hasMany(Policy::class, 'client_id');
+        return $this->hasMany(Policy::class);
     }
 
     public function queries()

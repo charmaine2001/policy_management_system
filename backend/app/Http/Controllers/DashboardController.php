@@ -15,9 +15,16 @@ class DashboardController extends Controller
             'active_policies' => Policy::where('status', 'Active')->count(),
             'expired_policies' => Policy::where('status', 'Expired')->count(),
             'pending_queries' => Query::where('status', 'Open')->count(),
-            'resolved_queries' => Query::where('status', 'Resolved')->count(),
+            'resolved_queries' => Query::where('status', 'Resolved')
+                ->whereDate('updated_at', today())
+                ->count(),
         ];
 
-        return view('dashboard', compact('stats'));
+        $recentPolicies = Policy::with('client')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('dashboard', compact('stats', 'recentPolicies'));
     }
 }

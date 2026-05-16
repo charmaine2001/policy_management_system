@@ -12,6 +12,35 @@ A simple digital system to manage insurance policies and improve communication w
 - **Mobile:** Flutter 3.41
 - **API:** Laravel Sanctum
 
+## Prerequisites
+
+Ensure you have the following installed on your system:
+
+### Windows
+- **PHP 8.2+**: Download from [php.net](https://windows.php.net/download/) or use [Laravel Herd](https://herd.laravel.com/).
+- **Composer**: Download from [getcomposer.org](https://getcomposer.org/download/).
+- **Node.js & NPM**: Download from [nodejs.org](https://nodejs.org/).
+- **Flutter SDK**: Follow the [Windows installation guide](https://docs.flutter.dev/get-started/install/windows).
+- **Android Studio / VS Code**: For mobile development.
+
+### macOS
+- **Homebrew**: Install from [brew.sh](https://brew.sh/).
+- **PHP, Composer, Node.js**:
+  ```bash
+  brew install php composer node
+  ```
+- **Flutter SDK**: Follow the [macOS installation guide](https://docs.flutter.dev/get-started/install/macos).
+- **Xcode & Android Studio**: For iOS and Android development.
+
+### Linux (Ubuntu/Debian)
+- **PHP, Composer, Node.js**:
+  ```bash
+  sudo apt update
+  sudo apt install php composer nodejs npm
+  ```
+- **Flutter SDK**: Follow the [Linux installation guide](https://docs.flutter.dev/get-started/install/linux).
+- **Android Studio / VS Code**: For mobile development.
+
 ## Setup Instructions
 
 ### Backend (Laravel)

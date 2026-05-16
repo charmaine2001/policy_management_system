@@ -14,9 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            PolicyTypeSeeder::class,
+        ]);
+
         // Admin
         User::create([
-            'name' => 'System Admin',
+            'name' => 'Staff Administrator',
             'email' => 'admin@zimnat.co.zw',
             'password' => Hash::make('password'),
             'role' => 'admin',
@@ -39,11 +43,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Initial Policy for Client
+        $lifeInsurance = \App\Models\PolicyType::where('name', 'Life Insurance')->first();
+
         Policy::create([
             'policy_number' => 'ZIM-POL-001',
-            'client_id' => $client->id,
-            'insurance_type' => 'Life Insurance',
-            'premium_amount' => 150.00,
+            'user_id' => $client->id,
+            'policy_type_id' => $lifeInsurance->id,
+            'plan_type' => 'Standard',
+            'final_price' => 150.00,
             'start_date' => now()->subMonths(6),
             'renewal_date' => now()->addMonths(6),
             'status' => 'Active',
