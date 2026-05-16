@@ -1,43 +1,63 @@
-# Technical Specification - Fix Policy Type Dropdown
+# Technical Specification: Fix PolicyController and Policy Model
 
-The "Add New Policy" page in the mobile app fails to display policy types because of a data model mismatch between the backend and the mobile app.
+Fix syntax errors, duplicate methods, and logic mismatches in `PolicyController.php` and align `Policy.php` model with the database schema and views.
 
 ## Technical Context
-- **Frontend**: Flutter (Dart)
-- **Backend**: Laravel (PHP)
-- **Data Model**: `PolicyType`
-
-## Investigation Findings
-1. **Model Mismatch**: The mobile app's `PolicyType` model in `./mobile/lib/models.dart` expects a `base_price` field:
-   ```dart
-   basePrice: double.parse(json['base_price'].toString()),
-   ```
-2. **Backend Schema**: The backend `policy_types` table (and the response from `ApiController.getPolicyTypes`) does not have a `base_price` column. Instead, it has `standard_price` and `premium_price` to support different plan tiers.
-3. **Parsing Failure**: When `ApiService.getPolicyTypes()` receives the backend response, `json['base_price']` is null. Calling `.toString()` on null (or `double.parse("null")`) causes an exception, which is caught in `AddPolicyPage._fetchPolicyTypes`, resulting in an empty dropdown and an error snackbar.
+- **Language**: PHP 8.x
+- **Framework**: Laravel 11.x
+- **Database**: MySQL/SQLite (based on migrations)
+- **Key Models**: `Policy`, `PolicyType`, `User`
 
 ## Implementation Approach
 
-### 1. Update Mobile Model
-- Modify `PolicyType` in `./mobile/lib/models.dart` to match the backend schema.
-- Replace `basePrice` with `standardPrice` and `premiumPrice`.
-- Update the `fromJson` factory to map the correct keys.
+### 1. `PolicyController.php` Refactoring
+- **Consolidate `store` methods**: Remove the malformed and duplicate `store` methods. Create a single, clean `store` method that:
+    - Validates input: `policy_number` (unique), `user_id` (exists), `policy_type_id` (exists), `plan_type` (Standard/Premium), `final_price` (numeric), `start_date` (date), `renewal_date` (date, after start_date), `status` (Active/Expired/Pending Renewal).
+    - Uses `Policy::create($request->all())`.
+    - Redirects to `policies.index` with success message.
+- **Update `index` method**:
+    - Use `Policy::with(['client', 'type'])->latest()->paginate(10)`.
+    - Ensure it returns the correct view.
+- **Update `create` method**:
+    - Fetch `$clients` (Users with role 'client').
+    - Fetch `$policyTypes` (All PolicyType records).
+    - Pass both to the view.
+- **Update `update` method**:
+    - Fix validation to match schema.
+    - Use `$policy->update($request->all())`.
+- **Fix Syntax Errors**:
+    - Remove misplaced braces and broken `validate` calls.
+    - Add a proper `__construct` method for the `auth` middleware.
+- **General Clean-up**:
+    - Remove unused imports if any.
+    - Ensure consistent return types (RedirectResponse or View).
 
-### 2. Update Add Policy Page (Optional/Defensive)
-- Ensure that the dropdown handles the updated `PolicyType` model.
-- Since the dropdown only uses `id` and `name`, no functional changes are strictly required in the UI, but it's good to ensure no regressions.
+### 2. `Policy.php` Model Updates
+- **Fix Relationships**:
+    - Update `client` relation to use `user_id` as the foreign key: `return $this->belongsTo(User::class, 'user_id');`.
+    - Rename `policyType` relation to `type` to match `index.blade.php`: `return $this->belongsTo(PolicyType::class, 'policy_type_id');`.
+- **Fillable Attributes**: Ensure all schema fields are in `$fillable`.
 
 ## Source Code Structure Changes
-The following file will be modified:
-- `./mobile/lib/models.dart`: Update `PolicyType` class and its `fromJson` factory.
+- **`backend/app/Http/Controllers/PolicyController.php`**: Major refactoring of methods.
+- **`backend/app/Models/Policy.php`**: Relation name and foreign key fixes.
 
 ## Data Model / API / Interface Changes
-- **PolicyType (Dart)**:
-    - Removed: `double basePrice`
-    - Added: `double standardPrice`
-    - Added: `double premiumPrice`
+- No changes to the database schema (migrations are already correct).
+- Aligning Controller/Model logic with the existing schema:
+    - `user_id`
+    - `policy_type_id`
+    - `plan_type`
+    - `final_price`
+    - `start_date`
+    - `renewal_date`
+    - `status`
 
 ## Verification Approach
-- **Static Analysis**: Run `flutter analyze` to ensure no type errors.
-- **Manual Verification**: 
-    - Open the "Add New Policy" page.
-    - Confirm the "Select Policy Type" dropdown is populated with actual policy types from the database.
+1. **Linting**: Run `php -l backend/app/Http/Controllers/PolicyController.php` and `backend/app/Models/Policy.php` to check for syntax errors.
+2. **Manual Verification**:
+    - Access `/policies` to ensure the registry loads with client and type names.
+    - Create a new policy to verify `store` logic and validation.
+    - Edit and update a policy.
+    - Delete a policy.
+3. **Automated Tests**: If the project has tests, run `php artisan test`. (Need to check for existing tests).

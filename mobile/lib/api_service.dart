@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
@@ -41,8 +42,8 @@ class ApiService {
         }),
       );
 
-      debugPrint('Login Status Code: ${response.statusCode}');
-      debugPrint('Login Response Body: ${response.body}');
+      developer.log('Login Status Code: ${response.statusCode}', name: 'ApiService');
+      developer.log('Login Response Body: ${response.body}', name: 'ApiService');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -53,7 +54,7 @@ class ApiService {
       }
       return false;
     } catch (e) {
-      debugPrint('Login Error: $e');
+      developer.log('Login Error: $e', name: 'ApiService', error: e);
       return false;
     }
   }
@@ -71,8 +72,8 @@ class ApiService {
         }),
       );
 
-      debugPrint('Register Status Code: ${response.statusCode}');
-      debugPrint('Register Response Body: ${response.body}');
+      developer.log('Register Status Code: ${response.statusCode}', name: 'ApiService');
+      developer.log('Register Response Body: ${response.body}', name: 'ApiService');
 
       final data = jsonDecode(response.body);
 
@@ -97,7 +98,7 @@ class ApiService {
         return {'success': false, 'message': message};
       }
     } catch (e) {
-      debugPrint('Register Error: $e');
+      developer.log('Register Error: $e', name: 'ApiService', error: e);
       return {'success': false, 'message': 'An error occurred during registration'};
     }
   }

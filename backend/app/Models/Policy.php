@@ -20,14 +20,14 @@ class Policy extends Model
         'status',
     ];
 
-    public function policyType()
+    public function type()
     {
-        return $this->belongsTo(PolicyType::class);
+        return $this->belongsTo(PolicyType::class, 'policy_type_id');
     }
 
     public function client()
     {
-        return $this->belongsTo(User::class, 'client_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function documents()
