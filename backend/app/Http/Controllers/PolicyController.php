@@ -3,33 +3,70 @@
 namespace App\Http\Controllers;
 
 use App\Models\Policy;
-use App\Models\User;
 use App\Models\PolicyType;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PolicyController extends Controller
 {
+
+    public function store(request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'policy_type_id' => 'required|exists:policy_types,id',
+            'plan_type' => 'required|in:Standard,Premium',
+
+            $policyType = PolicyType::find($request->policy_type_id);
+            if ($request->plan_type === 'Premium') {
+                $price = $policyType->premium_price;
+            } else {
+                $price = $policyType->standard_price;
+            }
+
+            $policy = Policy::create([
+                'policy_number' => 'POL-' . rand(1000, 9999),
+                'user_id' => $request->plan_type_id,
+                'policy_type_id' => $request->policy_type_id,
+                'plan_type' => $request->plan_type,
+                'final_price' => $price,
+                'start_date' => now(),
+                'renewal_date' => now()->addYear(),
+                'status' => 'Active',
+            ])
+
+            return response()->json([
+                'message' => 'Policy created successfully', 
+                'policy' => $policy], 201);
+        ]);
+        
+
+        Policy::create($request->all());
+
+        return redirect()->route('policies.index')->with('success', 'Policy created successfully.');
+    }
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
-        $policies = Policy::with(['client', 'type'])->latest()->paginate(10);
+        $policies = Policy::with('client')->latest()->paginate(10);
         return view('policies.index', compact('policies'));
     }
 
     public function create()
     {
         $clients = User::where('role', 'client')->get();
-        $policyTypes = PolicyType::all();
-        return view('policies.create', compact('clients', 'policyTypes'));
+        return view('policies.create', compact('clients'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'policy_number' => 'required|unique:policies',
-            'user_id' => 'required|exists:users,id',
-            'policy_type_id' => 'required|exists:policy_types,id',
-            'plan_type' => 'required|in:Standard,Premium',
-            'final_price' => 'required|numeric',
+            'client_id' => 'required|exists:users,id',
+            'insurance_type' => 'required',
+            'premium_amount' => 'required|numeric',
             'start_date' => 'required|date',
             'renewal_date' => 'required|date|after:start_date',
             'status' => 'required|in:Active,Expired,Pending Renewal',
@@ -42,25 +79,23 @@ class PolicyController extends Controller
 
     public function show(Policy $policy)
     {
-        $policy->load('client', 'type', 'documents');
+        $policy->load('client', 'documents');
         return view('policies.show', compact('policy'));
     }
 
     public function edit(Policy $policy)
     {
         $clients = User::where('role', 'client')->get();
-        $policyTypes = PolicyType::all();
-        return view('policies.edit', compact('policy', 'clients', 'policyTypes'));
+        return view('policies.edit', compact('policy', 'clients'));
     }
 
     public function update(Request $request, Policy $policy)
     {
         $request->validate([
             'policy_number' => 'required|unique:policies,policy_number,' . $policy->id,
-            'user_id' => 'required|exists:users,id',
-            'policy_type_id' => 'required|exists:policy_types,id',
-            'plan_type' => 'required|in:Standard,Premium',
-            'final_price' => 'required|numeric',
+            'client_id' => 'required|exists:users,id',
+            'insurance_type' => 'required',
+            'premium_amount' => 'required|numeric',
             'start_date' => 'required|date',
             'renewal_date' => 'required|date|after:start_date',
             'status' => 'required|in:Active,Expired,Pending Renewal',
