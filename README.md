@@ -90,3 +90,10 @@ Ensure you have the following installed on your system:
 2. File uploads are stored locally in the `storage/app/public` directory.
 3. Policy numbers are unique across the system.
 4. Clients are pre-registered by staff members (or through the seeder).
+5. Premiun and standard prices are predefined base prices 
+
+
+## AI Disclosure
+* Developed and maintained entirely by the author.
+* Utilized Copilot and Zencoder for real-time error checking and debugging assistance.
+
