@@ -2,6 +2,9 @@
 
 A simple digital system to manage insurance policies and improve communication with clients.
 
+## Link to mobile app funtionality video
+https://www.loom.com/share/183f2d4ded3548c490615558531fa043
+
 ## Features
 - **Web Application (Staff):** Admin & Policy Officers can manage policies, upload documents, and respond to client queries.
 - **Mobile Application (Clients):** Clients can view their policies, track renewal dates, view documents, and raise queries.
@@ -11,6 +14,7 @@ A simple digital system to manage insurance policies and improve communication w
 - **Database:** MySQL / SQLite
 - **Mobile:** Flutter 3.41
 - **API:** Laravel Sanctum
+
 
 ## Prerequisites
 
