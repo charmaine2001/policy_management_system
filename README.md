@@ -5,6 +5,7 @@ A simple digital system to manage insurance policies and improve communication w
 ## Link to mobile app funtionality video
 https://www.loom.com/share/183f2d4ded3548c490615558531fa043
 
+
 ## Features
 - **Web Application (Staff):** Admin & Policy Officers can manage policies, upload documents, and respond to client queries.
 - **Mobile Application (Clients):** Clients can view their policies, track renewal dates, view documents, and raise queries.
@@ -101,3 +102,17 @@ Ensure you have the following installed on your system:
 * Developed and maintained entirely by the author.
 * Utilized Copilot and Zencoder for real-time error checking and debugging assistance.
 
+
+## common ways to query my database
+use tinker by running the following command
+php artisan tinker
+
+you can then start querying data
+  User::all();
+  Policy::all();
+  etc
+
+
+  or you can use sqlite directly in the command line
+     sqlite3 backend/database/database.sqlite
+     
