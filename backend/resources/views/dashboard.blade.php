@@ -168,6 +168,51 @@
                         </span>
                         <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-width="3"/></svg>
                     </a>
+                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'policy_officer']))
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open" class="flex items-center justify-between w-full p-4 bg-white text-gray-700 border-2 border-gray-50 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:border-zimnat-blue hover:text-zimnat-blue transition-all group">
+                                <span class="flex items-center gap-3">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h8m-8 5h16"/></svg>
+                                    Upload Document
+                                </span>
+                                <svg :class="open ? 'transform rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+
+                            <div x-show="open" x-cloak class="mt-3 p-4 bg-white border border-gray-50 rounded-2xl shadow-lg">
+                                <form id="dashboard-upload-form" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="dashboard_policy" class="block text-xs font-semibold text-gray-600 mb-2">Select Policy</label>
+                                        <select id="dashboard_policy" class="w-full p-2 border rounded">
+                                            <option value="">-- Select recent policy --</option>
+                                            @foreach($recentPolicies as $p)
+                                                <option value="{{ $p->id }}">{{ $p->policy_number }} — {{ $p->client->name ?? 'N/A' }}</option>
+                                            @endforeach
+                                        </select>
+                                        <p class="text-[10px] text-gray-400 mt-2">If the policy isn't listed, open the full registry.</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="dashboard_file" class="block text-xs font-semibold text-gray-600 mb-2">Choose File</label>
+                                        <input id="dashboard_file" name="document" type="file" class="w-full" required>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-black py-2 rounded">Upload</button>
+                                        <a href="{{ route('policies.index') }}" class="flex-1 text-center bg-white border rounded py-2 text-gray-700">Open Registry</a>
+                                    </div>
+                                </form>
+                                <script>
+                                    (function(){
+                                        const form = document.getElementById('dashboard-upload-form');
+                                        const select = document.getElementById('dashboard_policy');
+                                        select.addEventListener('change', () => {
+                                            const id = select.value;
+                                            form.action = id ? '/policies/' + id + '/documents' : '';
+                                        });
+                                    })();
+                                </script>
+                            </div>
+                        </div>
+                    @endif
                     <a href="{{ route('queries.index') }}" class="flex items-center justify-between w-full p-4 bg-white text-gray-700 border-2 border-gray-50 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:border-zimnat-green hover:text-zimnat-green transition-all group">
                         <span class="flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>

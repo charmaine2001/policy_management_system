@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use App\Models\Policy;
 use App\Models\PolicyType;
 use App\Models\Query;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ApiController extends Controller
@@ -131,5 +133,63 @@ class ApiController extends Controller
     public function queries(Request $request)
     {
         return $request->user()->queries()->latest()->get();
+    }
+
+    /**
+     * Upload a document to a policy
+     * 
+     * This method handles file uploads from mobile and web clients.
+     * It validates the file, stores it, and creates a database record.
+     * 
+     * @param Request $request - Contains the file and policy ID
+     * @param Policy $policy - The policy to attach the document to
+     * @return \Illuminate\Http\JsonResponse - Success or error response
+     */
+    public function uploadDocument(Request $request, Policy $policy)
+    {
+        // Authorization check - only policy owner can upload documents
+        if (auth()->id() !== $policy->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Validate the incoming file
+        $request->validate([
+            'file' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx',
+        ], [
+            'file.required' => 'Please upload a file',
+            'file.max' => 'File must not exceed 2MB',
+            'file.mimes' => 'Only PDF, images (JPG, PNG), and documents (DOC, DOCX, XLS, XLSX) are allowed',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            
+            // Create a unique filename: policy_id_timestamp_originalname
+            $fileName = $file->getClientOriginalName();
+            $fileType = $file->getClientOriginalExtension();
+            $filePath = "documents/{$policy->id}/" . time() . "_" . $fileName;
+            
+            // Store file in storage/app/public (accessible via /storage URL)
+            Storage::disk('public')->put($filePath, file_get_contents($file));
+            
+            // Create database record for the document
+            $document = Document::create([
+                'policy_id' => $policy->id,
+                'file_name' => $fileName,
+                'file_path' => $filePath,
+                'file_type' => $fileType,
+            ]);
+            
+            return response()->json([
+                'message' => 'Document uploaded successfully',
+                'document' => $document,
+            ], 201);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload document',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

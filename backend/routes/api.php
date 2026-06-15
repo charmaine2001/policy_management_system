@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/policy-types', [ApiController::class, 'getPolicyTypes']);
     Route::post('/queries', [ApiController::class, 'raiseQuery']);
     Route::get('/queries', [ApiController::class, 'queries']);
+    
+    // Document upload endpoint - for mobile app and web clients
+    Route::post('/policies/{policy}/documents', [ApiController::class, 'uploadDocument']);
 });

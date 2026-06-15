@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 class ApiService {
   // Use 192.168.100.224 for physical iPhone on the same Wi-Fi
@@ -188,6 +190,81 @@ class ApiService {
     );
 
     return response.statusCode == 201;
+  }
+
+  /// Upload a document to a policy
+  /// 
+  /// This method handles file uploads with multipart/form-data encoding.
+  /// It allows users to attach documents (PDF, images, docs, etc.) to their policies.
+  /// 
+  /// Parameters:
+  ///   - policyId: The ID of the policy to attach the document to
+  ///   - file: The File object to upload
+  /// 
+  /// Returns: true if successful, throws exception otherwise
+  /// 
+  /// Errors handled:
+  ///   - 413: Request entity too large (file > 2MB)
+  ///   - 422: Validation failed (invalid file type)
+  ///   - 403: Unauthorized (user doesn't own the policy)
+  ///   - 404: Policy not found
+  Future<Map<String, dynamic>> uploadDocument(int policyId, File file) async {
+    try {
+      final token = await getToken();
+      
+      // Create a multipart request for file upload
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/policies/$policyId/documents'),
+      );
+
+      // Add authentication token
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Add the file to the request
+      request.files.add(
+        await http.MultipartFile.fromPath('file', file.path),
+      );
+
+      developer.log(
+        'Uploading file: ${file.path}, Size: ${file.lengthSync()} bytes',
+        name: 'ApiService',
+      );
+
+      // Send the request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      developer.log(
+        'Upload Status Code: ${response.statusCode}',
+        name: 'ApiService',
+      );
+      developer.log(
+        'Upload Response: ${response.body}',
+        name: 'ApiService',
+      );
+
+      if (response.statusCode == 201) {
+        return {
+          'success': true,
+          'message': 'Document uploaded successfully',
+          'data': jsonDecode(response.body),
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Upload failed',
+          'error': errorData['error'],
+        };
+      }
+    } catch (e) {
+      developer.log('Upload Error: $e', name: 'ApiService', error: e);
+      return {
+        'success': false,
+        'message': 'An error occurred during upload: $e',
+      };
+    }
   }
 
   Future<void> logout() async {

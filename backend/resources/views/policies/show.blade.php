@@ -81,22 +81,28 @@
                 <div class="md:col-span-1">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <h3 class="text-lg font-semibold mb-4 border-b pb-2">Upload Document</h3>
-                        <form action="{{ route('documents.store', $policy) }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="mb-4">
-                                <label for="document" class="block text-sm font-medium text-gray-700 mb-2">Select File (JPG, PNG, PDF)</label>
-                                <input type="file" name="document" id="document" class="block w-full text-sm text-gray-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-blue-50 file:text-blue-700
-                                    hover:file:bg-blue-100" required>
-                                @error('document') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-                            <button type="submit" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-150">
-                                Upload
-                            </button>
-                        </form>
+
+                        @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'policy_officer']))
+                            <form action="{{ route('documents.store', $policy) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-4">
+                                    <label for="document" class="block text-sm font-medium text-gray-700 mb-2">Select File (JPG, PNG, PDF)</label>
+                                    <input type="file" name="document" id="document" class="block w-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-blue-50 file:text-blue-700
+                                        hover:file:bg-blue-100" required>
+                                    @error('document') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                </div>
+                                <button type="submit" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-150">
+                                    Upload
+                                </button>
+                            </form>
+                        @else
+                            <p class="text-gray-600 text-sm">Only Admins and Policy Officers can upload documents.</p>
+                        @endif
+
                     </div>
                 </div>
             </div>
